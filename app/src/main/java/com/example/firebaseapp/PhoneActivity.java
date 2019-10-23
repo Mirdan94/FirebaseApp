@@ -30,6 +30,8 @@ public class PhoneActivity extends AppCompatActivity {
     private boolean isCodeSent;
     private Button sendCode;
     private EditText editText2;
+    String code2;
+    String myCode;
 
 
     @Override
@@ -43,12 +45,10 @@ public class PhoneActivity extends AppCompatActivity {
         callbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(@NonNull final PhoneAuthCredential phoneAuthCredential) {
+//                phoneAuthCredential.getSmsCode();
+//                editText2.setText(phoneAuthCredential.getSmsCode());
                 Log.e("TAG", "onVerificationCompleted");
-                if (isCodeSent) {
-                    verifyPhoneNumberWithCode(phoneAuthCredential, code);
-                } else {
-                    signIn(phoneAuthCredential);
-                }
+
             }
 
             @Override
@@ -66,29 +66,27 @@ public class PhoneActivity extends AppCompatActivity {
             public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 super.onCodeSent(s, forceResendingToken);
                 isCodeSent = true;
+                code2 = s;
             }
         };
 
         editText2.setVisibility(View.GONE);
         sendCode.setVisibility(View.GONE);
-
-    }
-
-
-    private void verifyPhoneNumberWithCode(PhoneAuthCredential verificationId, String code) {
-        // [START verify_with_code]
-        final PhoneAuthCredential credential = PhoneAuthProvider.getCredential(String.valueOf(verificationId), editText2.getText().toString().trim());
-        // [END verify_with_code]
-        signIn(credential);
         sendCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-        startActivity(new Intent(PhoneActivity.this, MainActivity.class));
-
+                String codeEmpty = editText2.getText().toString().trim();
+                if (TextUtils.isEmpty(codeEmpty)) {
+                    editText.setError("Напишите номер");
+                } else {
+                    myCode = editText2.getText().toString().trim();
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(code2, myCode);
+                    signIn(credential);
+                }
             }
         });
-    }
 
+    }
 
     public void onClick(View view) {
         String phone = editText.getText().toString().trim();
